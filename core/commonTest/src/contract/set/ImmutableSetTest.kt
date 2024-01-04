@@ -3,6 +3,8 @@
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
+@file:Suppress("CanSealedSubClassBeObject")
+
 package tests.contract.set
 
 import kotlinx.collections.immutable.*
@@ -15,6 +17,7 @@ import kotlin.test.*
 
 class ImmutableHashSetTest : ImmutableSetTestBase() {
     override fun <T> immutableSetOf(vararg elements: T) = persistentHashSetOf(*elements)
+    override fun <T> compareSets(expected: Set<T>, actual: Set<T>) = compareSetsUnordered(expected, actual)
     override fun <T> testBuilderToPersistentSet(builder: PersistentSet.Builder<T>) {
         assertNotSame(builder.build(), builder.toPersistentSet(), "toPersistent shouldn't call build()")
     }
@@ -223,13 +226,13 @@ class ImmutableOrderedSetTest : ImmutableSetTestBase() {
     }
 }
 
-abstract class ImmutableSetTestBase {
+sealed class ImmutableSetTestBase {
     abstract fun <T> immutableSetOf(vararg elements: T): PersistentSet<T>
+    abstract fun <T> compareSets(expected: Set<T>, actual: Set<T>)
     abstract fun <T> testBuilderToPersistentSet(builder: PersistentSet.Builder<T>)
 
     fun <T> immutableSetOf(elements: Collection<T>) = immutableSetOf<T>() + elements
 
-    open fun <T> compareSets(expected: Set<T>, actual: Set<T>) = compareSetsUnordered(expected, actual)
     fun <T> compareSetsUnordered(expected: Set<T>, actual: Set<T>) = compare(expected, actual) { setBehavior(ordered = false) }
 
     @Test open fun empty() {

@@ -3,6 +3,8 @@
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
+@file:Suppress("CanSealedSubClassBeObject")
+
 package tests.contract.map
 
 import kotlinx.collections.immutable.*
@@ -17,6 +19,7 @@ import kotlin.test.*
 
 class ImmutableHashMapTest : ImmutableMapTest() {
     override fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = persistentHashMapOf(*pairs)
+    override fun <K, V> compareMaps(expected: Map<K, V>, actual: Map<K, V>) = compareMapsUnordered(expected, actual)
     override fun <K, V> testBuilderToPersistentMap(builder: PersistentMap.Builder<K, V>) {
         assertNotSame(builder.build(), builder.toPersistentMap(), "toPersistent shouldn't call build()")
     }
@@ -141,11 +144,11 @@ class ImmutableOrderedMapTest : ImmutableMapTest() {
     }
 }
 
-abstract class ImmutableMapTest {
+sealed class ImmutableMapTest {
     abstract fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V>
+    abstract fun <K, V> compareMaps(expected: Map<K, V>, actual: Map<K, V>)
     abstract fun <K, V> testBuilderToPersistentMap(builder: PersistentMap.Builder<K, V>)
 
-    open fun <K, V> compareMaps(expected: Map<K, V>, actual: Map<K, V>) = compareMapsUnordered(expected, actual)
     fun <K, V> compareMapsUnordered(expected: Map<K, V>, actual: Map<K, V>) = compare(expected, actual) { mapBehavior(ordered = false) }
 
 
